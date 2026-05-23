@@ -63,38 +63,21 @@
 ```
 docker exec -it mysql-master mysql -u root -p
 ```
-Создаем пользователя
+Создаем пользователя для репликации и смотрим статус мастера:
 ```
-CREATE USER 'repl'@'%' IDENTIFIED BY 'replpass' 
-  REQUIRE SSL;
+  CREATE USER 'repl'@'%' IDENTIFIED BY 'replicapassword';
+  GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
+  FLUSH PRIVILEGES;
 
-GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
-
-FLUSH PRIVILEGES;
+  SHOW BINARY LOG STATUS;
 ```
+<img width="990" height="172" alt="image" src="https://github.com/user-attachments/assets/46694981-9677-4d41-bf13-4c859151e8fc" />
 
-Теперь проверяем статус Мастера:
-```
-SHOW BINARY LOG STATUS;
-```
-<img width="1003" height="178" alt="image" src="https://github.com/user-attachments/assets/9042ddfa-17b9-4460-b30e-ef5762f6b473" />
-
-Подключаемся к слейву:
+Настраиваем слейв:
 ```
 docker exec -it mysql-slave mysql -u root -p
 ```
 
-Выполняем команды (Указываем мастер-сервер и запускаем репликацию):
 
-```
-CHANGE MASTER TO
-  MASTER_HOST='mysql-master',
-  MASTER_USER='repl',
-  MASTER_PASSWORD='replpass',
-  MASTER_AUTO_POSITION=1,
-  MASTER_SSL=1;
-
-START SLAVE;
-```
 
 
