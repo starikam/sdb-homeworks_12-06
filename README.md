@@ -57,5 +57,44 @@
 ## Задание 2
 Поднимаем в Докере две базы:
 
-![Uploading image.png…]()
+<img width="1379" height="175" alt="image" src="https://github.com/user-attachments/assets/ab9c9bab-a644-47b3-bdee-3634a1cb364b" />
+
+Настраиваем пользователя репликации, подключаемся к мастер-базе:
+```
+docker exec -it mysql-master mysql -u root -p
+```
+Создаем пользователя
+```
+CREATE USER 'repl'@'%' IDENTIFIED BY 'replpass' 
+  REQUIRE SSL;
+
+GRANT REPLICATION SLAVE ON *.* TO 'repl'@'%';
+
+FLUSH PRIVILEGES;
+```
+
+Теперь проверяем статус Мастера:
+```
+SHOW BINARY LOG STATUS;
+```
+<img width="1003" height="178" alt="image" src="https://github.com/user-attachments/assets/9042ddfa-17b9-4460-b30e-ef5762f6b473" />
+
+Подключаемся к слейву:
+```
+docker exec -it mysql-slave mysql -u root -p
+```
+
+Выполняем команды (Указываем мастер-сервер и запускаем репликацию):
+
+```
+CHANGE MASTER TO
+  MASTER_HOST='mysql-master',
+  MASTER_USER='repl',
+  MASTER_PASSWORD='replpass',
+  MASTER_AUTO_POSITION=1,
+  MASTER_SSL=1;
+
+START SLAVE;
+```
+
 
